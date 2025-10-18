@@ -1,34 +1,37 @@
 import requests
 import json 
 
-def MGnify_search():
-    '''
-    Faz a pesquisa de vários IDs de amostras interessantes.
+def pesquisa_MGnify(max_pages):
+    """
+    Faz a pesquisa de vários IDs de amostras do MGnify.
 
     Parâmetros:
-    url: Link que será utilizado na pesquisa.
-    '''
+    max_pages: número máximo de páginas a buscar.
+    """
     lista_ids = []
-    url_da_pesquisa = "https://www.ebi.ac.uk/metagenomics/api/v1/biomes/root:Environmental:Aquatic:Marine/genomes"
-    resposta = requests.get(url_da_pesquisa)
 
-    if resposta.status_code == 200:
+    for page in range(1, max_pages + 1):
+        url = f"https://www.ebi.ac.uk/metagenomics/api/v1/biomes/root:Environmental:Aquatic:Marine/genomes?page={page}"
+        resposta = requests.get(url)
+
+        if resposta.status_code != 200:
+            print(f"Erro {resposta.status_code} na página {page}")
+            break
+
         dados_json = resposta.json()
-        arquivo = "aquatic_freshwater_ice.download.json"
+        ids_atuais = [item["id"] for item in dados_json.get("data", [])]
+        lista_ids.extend(ids_atuais)
 
-        with open(arquivo, "w") as i:
-            json.dump(dados_json, i, indent=4)
-    
-        lista_ids = [item["id"] for item in dados_json.get("data", [])]
-        print(f"{len(lista_ids)} IDs encontrados")
+        print(f"Página {page}: {len(ids_atuais)} IDs encontrados")
+        time.sleep(1)  
 
-        arquivo_ids = "aquatic_freshwater_ice_ids.txt"
-        with open(arquivo_ids, "w") as f:
-            for id_study in lista_ids:
-                f.write(id_study + "\n")
+    with open("aquatic_download.json", "w") as i:
+        json.dump(dados_json, i, indent=4)
 
-        return arquivo, lista_ids
-    else:
-        print(f"Deu problema no status {resposta.status_code}")
+    with open("aquatic_ids.txt", "w") as f:
+        for id_study in lista_ids:
+            f.write(id_study + "\n")
 
-    return None, []
+    print(f"\nTotal de {len(lista_ids)} IDs coletados em {page} páginas.")
+    return "aquatic_download.json", lista_ids
+
