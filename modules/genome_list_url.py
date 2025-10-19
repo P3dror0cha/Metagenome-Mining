@@ -3,6 +3,10 @@ import requests
 def genome_list_url(lista_ids, arquivo_saida="links_download.txt"):
     '''
     Faz a pesquisa das urls associadas com cada uma das amostras. Junta tudo em um txt único.
+
+    Parâmetros:
+    lista_ids = Lista com o nome dos ids que terão as urls pesquisadas
+    arquivo_saida = Nome do arquivo de saída .txt
     '''
     lista_download = []
     for ids in lista_ids:
