@@ -37,4 +37,5 @@ def MGnify_search(max_pages):
             f.write(id_study + "\n")
 
     print(f"\nTotal de {len(lista_ids)} IDs coletados em {page} páginas.")
-    return dados_json, lista_ids
+    return resultado_final_json, lista_ids
+
