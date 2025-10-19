@@ -1,21 +1,23 @@
-import requests
-
-def download_genome_url(entrada):
+def download_genome_url(input, filtro=".fna"):
     """
-    Lê um arquivo .txt OU uma lista de links e baixa apenas os arquivos .fna.
+    Lê um arquivo .txt OU uma lista de links e baixa apenas os arquivos que você quer filtrando pelo tipo de arquivo.
+    
+    Parâmetros:
+    input: caminho do arquivo .txt contendo os links OU uma lista de links.
+    filtro: extensão do arquivo a ser baixado. Default: ".fna"
     """
-    if isinstance(entrada, str):
-        with open(entrada, "r") as f:
+    if isinstance(input, str):
+        with open(input, "r") as f:
             links = [linha.strip() for linha in f if linha.strip()]
-    elif isinstance(entrada, list):
-        links = [linha.strip() for linha in entrada if linha.strip()]
+    elif isinstance(input, list):
+        links = [linha.strip() for linha in input if linha.strip()]
     else:
-        raise TypeError("A entrada deve ser um caminho de arquivo (.txt) ou uma lista de links.")
+        raise TypeError("O input deve ser um caminho de arquivo (.txt) ou uma lista de links.")
 
-    fna_links = [link for link in links if link.endswith(".fna")] # Change here the ending if needed
+    fna_links = [link for link in links if link.endswith(filtro)] 
 
     if not fna_links:
-        print("Nenhum link .fna encontrado.") # Change here the ending if needed
+        print(f"Nenhum link {filtro} encontrado.") 
         return
 
     for link in fna_links:
@@ -30,3 +32,13 @@ def download_genome_url(entrada):
             print(f"Download concluído: {nome_arquivo}")
         except requests.RequestException as e:
             print(f"Erro ao baixar {nome_arquivo}: {e}")
+
+        try:
+            resposta = requests.get(link, timeout=30)
+            resposta.raise_for_status()
+            with open(nome_arquivo, "wb") as f:
+                f.write(resposta.content)
+            print(f"Download concluído: {nome_arquivo}")
+        except requests.RequestException as e:
+            print(f"Erro ao baixar {nome_arquivo}: {e}")
+
